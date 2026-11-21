@@ -1,0 +1,54 @@
+---
+interface Props {
+  slug: string;
+  /** Server-rendered toast (no-JS path, right after the redirect). */
+  title?: string | null;
+}
+const { slug, title } = Astro.props;
+---
+
+<div class="toast" role="status" data-toast hidden={!title}>
+  <p><span data-toast-text>{title ? `You're giving ${title}. Thank you!` : ''}</span></p>
+  <form method="post" action="/api/unclaim" data-undo-form>
+    <input type="hidden" name="mode" value="undo" />
+    <input type="hidden" name="returnTo" value={slug} />
+    <button type="submit" class="undo">Undo</button>
+  </form>
+</div>
+
+<style>
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: var(--space-4);
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--space-3));
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+    border-radius: var(--radius-pill);
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 10px 40px rgb(0 0 0 / 0.3);
+  }
+  .toast[hidden] {
+    display: none;
+  }
+  p {
+    margin: 0;
+    font-weight: 600;
+  }
+  .undo {
+    min-height: var(--target);
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--mint);
+    color: var(--on-bright);
+    font: 700 16px var(--font-body);
+    cursor: pointer;
+  }
+</style>

@@ -49,3 +49,8 @@ a {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* `hidden` always wins over component display rules (e.g. .pill). */
+[hidden] {
+  display: none !important;
+}

@@ -5,8 +5,11 @@ import SiteFooter from '../components/SiteFooter.astro';
 import Hero from '../components/Hero.astro';
 import Filters from '../components/Filters.astro';
 import ItemCard from '../components/ItemCard.astro';
+import ClaimDialog from '../components/ClaimDialog.astro';
+import UndoToast from '../components/UndoToast.astro';
 import { getWishlist, sortForList } from '../lib/wishlist';
 import { brightFor } from '../lib/colors';
+import { clearUndo, readUndo } from '../lib/undo';
 
 const { recipients, items: all } = await getWishlist();
 const index = recipients.findIndex((r) => r.slug === Astro.params.recipient);
@@ -22,6 +25,17 @@ const categories = [
 ]
   .map((c) => ({ ...c, count: items.filter((i) => i.category === c.key).length }))
   .filter((c) => c.count > 0);
+
+const params = Astro.url.searchParams;
+
+// No-JS claim: ?claim=<id> opens the dialog server-side (with ?error= after a failed try).
+const claimItem = items.find((i) => i.id === params.get('claim') && !i.claimed) ?? null;
+const claimError = claimItem ? params.get('error') : null;
+
+// Undo toast shows once, right after a claim. Any other page view drops the cookie.
+const undo = readUndo(Astro.cookies);
+const justClaimed = undo && params.get('claimed') === undo.itemId ? items.find((i) => i.id === undo.itemId) : null;
+if (undo && !justClaimed) clearUndo(Astro.cookies);
 
 // Claims must show up right away: no CDN or shared caching.
 Astro.response.headers.set('Cache-Control', 'private, no-cache');
@@ -39,7 +53,7 @@ Astro.response.headers.set('Cache-Control', 'private, no-cache');
           <Filters categories={categories} />
           <ul class="grid">
             {items.map((item) => (
-              <ItemCard item={item} />
+              <ItemCard item={item} slug={recipient.slug} />
             ))}
           </ul>
           <p class="empty" data-empty hidden>
@@ -50,7 +64,13 @@ Astro.response.headers.set('Cache-Control', 'private, no-cache');
     }
   </main>
   <SiteFooter />
+  <ClaimDialog slug={recipient.slug} item={claimItem} error={claimError} />
+  <UndoToast slug={recipient.slug} title={justClaimed?.title} />
 </Base>
+
+<script>
+  import '../scripts/claim';
+</script>
 
 <style>
   main {
@@ -73,8 +93,5 @@ Astro.response.headers.set('Cache-Control', 'private, no-cache');
     margin-top: var(--space-4);
     font-weight: 600;
     text-align: center;
-  }
-  .empty[hidden] {
-    display: none;
   }
 </style>

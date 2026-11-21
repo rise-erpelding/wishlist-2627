@@ -4,14 +4,16 @@ import { CATEGORY_COLOR } from '../lib/colors';
 
 interface Props {
   item: PublicItem;
+  /** Recipient slug, so forms can send people back to this page. */
+  slug: string;
 }
-const { item } = Astro.props;
+const { item, slug } = Astro.props;
 const color = CATEGORY_COLOR[item.category];
 const state = item.claimed ? 'claimed' : 'open';
 const host = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : null;
 ---
 
-<li class="card" data-item data-state={state} data-category={item.category}>
+<li class="card" id={`item-${item.id}`} data-item data-item-id={item.id} data-multi={item.multi ? '' : undefined} data-state={state} data-category={item.category}>
   <div class="media" style={`--ph-bg: ${color.bg}; --ph-fg: ${color.fg}`}>
     <span class="placeholder display" aria-hidden="true">{item.title.slice(0, 1)}</span>
     {
@@ -28,7 +30,7 @@ const host = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : null;
         />
       )
     }
-    {item.claimed && <span class="stamp">Claimed</span>}
+    <span class="stamp" data-stamp hidden={!item.claimed}>Claimed</span>
   </div>
   <div class="body">
     <p class="label" style={`--dot: ${color.bg}`}>{item.categoryLabel}</p>
@@ -45,21 +47,31 @@ const host = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : null;
       }
     </h3>
     {item.description && <p class="desc">{item.description}</p>}
-    <div class="actions">
+    <div class="actions" data-actions>
       {
         item.claimed ? (
-          <p class="status">Someone is giving this</p>
+          <>
+            <p class="status">Someone is giving this</p>
+            <form method="post" action="/api/unclaim" data-unclaim>
+              <input type="hidden" name="itemId" value={item.id} />
+              <input type="hidden" name="returnTo" value={slug} />
+              <button type="submit" class="text-button">
+                Unclaim<span class="visually-hidden"> {item.title}</span>
+              </button>
+            </form>
+          </>
         ) : (
-          <button type="button" class="pill primary" data-claim={item.id} data-title={item.title}>
-            I'll give this
-          </button>
+          // A link so it still works without JavaScript; the script opens the dialog instead.
+          <a class="pill primary" href={`/${slug}?claim=${item.id}#claim-dialog`} data-claim={item.id} data-title={item.title}>
+            I'll give this<span class="visually-hidden">: {item.title}</span>
+          </a>
         )
       }
-      {item.multi && item.claimCount > 0 && (
-        <p class="status">
-          {item.claimCount} {item.claimCount === 1 ? 'person is' : 'people are'} giving one
-        </p>
-      )}
+      <!-- Shown by the script right after this person claims it. -->
+      <p class="status" data-giving hidden>You're giving this</p>
+      <p class="status" data-multi-count hidden={!(item.multi && item.claimCount > 0)}>
+        {item.claimCount} {item.claimCount === 1 ? 'person is' : 'people are'} giving one
+      </p>
     </div>
   </div>
 </li>
@@ -127,6 +139,9 @@ const host = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : null;
   .stamp {
     z-index: 1;
   }
+  .stamp[hidden] {
+    display: none;
+  }
   .body {
     display: flex;
     flex-direction: column;
@@ -179,6 +194,20 @@ const host = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : null;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2);
+  }
+  .status[hidden] {
+    display: none;
+  }
+  .text-button {
+    min-height: var(--target);
+    padding: 0 var(--space-1);
+    border: 0;
+    background: none;
+    color: var(--link);
+    font: 600 15px var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
   }
   .status {
     margin: 0;

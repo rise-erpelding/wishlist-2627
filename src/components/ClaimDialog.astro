@@ -1,0 +1,123 @@
+---
+interface Props {
+  slug: string;
+  /** Server-side open (no JavaScript): the item from ?claim=. */
+  item?: { id: string; title: string } | null;
+  error?: string | null;
+}
+const { slug, item, error } = Astro.props;
+const messages: Record<string, string> = {
+  email: "That email doesn't look right. Fix it or leave it blank.",
+  taken: 'Someone just claimed this one. Pick another?',
+  gone: "This item isn't on the list anymore.",
+  'not-found': "This item isn't on the list anymore.",
+  server: "Something went wrong saving that. Please try again.",
+};
+const message = error ? (messages[error] ?? messages.server) : '';
+---
+
+<dialog id="claim-dialog" class="claim-dialog" aria-labelledby="claim-title" open={item ? true : undefined}>
+  <form method="post" action="/api/claim" data-claim-form>
+    <input type="hidden" name="itemId" value={item?.id ?? ''} />
+    <input type="hidden" name="returnTo" value={slug} />
+    <h2 id="claim-title" class="display">You're giving</h2>
+    <p class="item-title" data-claim-title>{item?.title}</p>
+
+    <p class="error" role="alert" data-claim-error hidden={!message}>{message}</p>
+
+    <label for="claim-name">Your name <span class="optional">(optional)</span></label>
+    <input id="claim-name" name="name" type="text" maxlength="80" autocomplete="name" />
+
+    <label for="claim-email">Your email <span class="optional">(optional)</span></label>
+    <input id="claim-email" name="email" type="email" maxlength="200" autocomplete="email" />
+    <p class="hint">Only the list owner sees these, so they know who to thank.</p>
+
+    <!-- Honeypot: hidden from people, filled in by bots. -->
+    <div class="visually-hidden" aria-hidden="true">
+      <label for="claim-website">Website</label>
+      <input id="claim-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="buttons">
+      <a class="pill" href={`/${slug}`} data-claim-cancel>Cancel</a>
+      <button type="submit" class="pill primary" data-claim-submit>Claim it</button>
+    </div>
+  </form>
+</dialog>
+
+<style>
+  .claim-dialog {
+    width: min(480px, calc(100vw - 2 * var(--space-3)));
+    border: 0;
+    border-radius: var(--radius-card);
+    padding: var(--space-5) var(--space-4) var(--space-4);
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 20px 60px rgb(0 0 0 / 0.3);
+  }
+  /* Server-opened (no JS) dialog sits in the page flow; center it. */
+  .claim-dialog[open]:not(:modal) {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    z-index: 10;
+    height: fit-content;
+  }
+  .claim-dialog::backdrop {
+    background: var(--scrim);
+    backdrop-filter: blur(2px);
+  }
+  h2 {
+    font-size: 36px;
+  }
+  .item-title {
+    font-weight: 600;
+    font-size: 18px;
+    margin: var(--space-1) 0 var(--space-4);
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin-top: var(--space-3);
+  }
+  .optional {
+    font-weight: 400;
+    color: var(--muted);
+  }
+  input[type='text'],
+  input[type='email'] {
+    width: 100%;
+    min-height: var(--target);
+    margin-top: 6px;
+    padding: 0 var(--space-2);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-input);
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px var(--font-body);
+  }
+  input:focus-visible {
+    border-color: var(--link);
+  }
+  .hint {
+    margin: var(--space-1) 0 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .error {
+    background: var(--yellow-soft);
+    border-radius: var(--radius-input);
+    padding: var(--space-2) var(--space-3);
+    margin: 0 0 var(--space-2);
+    font-weight: 600;
+  }
+  .error[hidden] {
+    display: none;
+  }
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+</style>
