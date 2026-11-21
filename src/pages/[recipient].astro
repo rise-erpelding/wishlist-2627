@@ -1,0 +1,80 @@
+---
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Hero from '../components/Hero.astro';
+import Filters from '../components/Filters.astro';
+import ItemCard from '../components/ItemCard.astro';
+import { getWishlist, sortForList } from '../lib/wishlist';
+import { brightFor } from '../lib/colors';
+
+const { recipients, items: all } = await getWishlist();
+const index = recipients.findIndex((r) => r.slug === Astro.params.recipient);
+if (index === -1) return new Response('Not found', { status: 404 });
+const recipient = recipients[index];
+
+const items = sortForList(all.filter((i) => i.recipientIds.includes(recipient.id)));
+const open = items.filter((i) => !i.claimed).length;
+const categories = [
+  { key: 'items', label: 'Things' },
+  { key: 'books', label: 'Books' },
+  { key: 'gift-cards', label: 'Gift cards' },
+]
+  .map((c) => ({ ...c, count: items.filter((i) => i.category === c.key).length }))
+  .filter((c) => c.count > 0);
+
+// Claims must show up right away: no CDN or shared caching.
+Astro.response.headers.set('Cache-Control', 'private, no-cache');
+---
+
+<Base title={`${recipient.name}'s wish list`}>
+  <SiteHeader recipients={recipients} current={recipient.slug} />
+  <main>
+    <Hero name={recipient.name} color={brightFor(index)} total={items.length} open={open} />
+    {
+      items.length === 0 ? (
+        <p class="empty">Nothing on this list yet. Check back soon.</p>
+      ) : (
+        <>
+          <Filters categories={categories} />
+          <ul class="grid">
+            {items.map((item) => (
+              <ItemCard item={item} />
+            ))}
+          </ul>
+          <p class="empty" data-empty hidden>
+            Nothing matches those filters.
+          </p>
+        </>
+      )
+    }
+  </main>
+  <SiteFooter />
+</Base>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-3);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .empty {
+    background: var(--yellow-soft);
+    border-radius: var(--radius-card);
+    padding: var(--space-5) var(--space-4);
+    margin-top: var(--space-4);
+    font-weight: 600;
+    text-align: center;
+  }
+  .empty[hidden] {
+    display: none;
+  }
+</style>

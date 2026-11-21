@@ -1,0 +1,77 @@
+---
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { getWishlist } from '../lib/wishlist';
+import { brightFor } from '../lib/colors';
+
+const { recipients, items } = await getWishlist();
+const openCount = (id: string) => items.filter((i) => i.recipientIds.includes(id) && !i.claimed).length;
+Astro.response.headers.set('Cache-Control', 'private, no-cache');
+---
+
+<Base title="Wish list">
+  <SiteHeader recipients={recipients} />
+  <main>
+    <h1 class="display">Who are you shopping for?</h1>
+    <ul class="people">
+      {
+        recipients.map((r, i) => {
+          const c = brightFor(i);
+          const open = openCount(r.id);
+          return (
+            <li>
+              <a href={`/${r.slug}`} style={`--bg: ${c.bg}; --fg: ${c.fg}`}>
+                <span class="name display">{r.name}</span>
+                <span class="meta">{open === 0 ? 'Nothing open right now' : `${open} still open`}</span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </main>
+  <SiteFooter />
+</Base>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-3);
+  }
+  h1 {
+    font-size: clamp(40px, 8vw, 80px);
+    margin-bottom: var(--space-5);
+  }
+  .people {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .people a {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-5);
+    min-height: 200px;
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    background: var(--bg);
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .people a:hover .name {
+    text-decoration: underline;
+    text-decoration-thickness: 4px;
+  }
+  .name {
+    font-size: 48px;
+  }
+  .meta {
+    font-weight: 600;
+  }
+</style>

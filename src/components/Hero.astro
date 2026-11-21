@@ -1,0 +1,64 @@
+---
+interface Props {
+  name: string;
+  color: { bg: string; fg: string };
+  total: number;
+  open: number;
+}
+const { name, color, total, open } = Astro.props;
+const claimed = total - open;
+---
+
+<section class="hero" style={`--hero-bg: ${color.bg}; --hero-fg: ${color.fg}`}>
+  <div>
+    <p class="eyebrow">Wish list for</p>
+    <h1 class="display">{name}</h1>
+  </div>
+  <dl class="stats">
+    <div><dt>Still open</dt><dd class="display" data-stat-open>{open}</dd></div>
+    <div><dt>Claimed</dt><dd class="display">{claimed}</dd></div>
+  </dl>
+</section>
+
+<style>
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+    background: var(--hero-bg);
+    color: var(--hero-fg);
+    border-radius: var(--radius-block);
+    padding: var(--space-5) var(--space-4);
+  }
+  .eyebrow {
+    margin: 0 0 var(--space-1);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(56px, 14vw, 128px);
+    overflow-wrap: anywhere;
+  }
+  .stats {
+    display: flex;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .stats div {
+    background: var(--card);
+    color: var(--ink);
+    border-radius: var(--radius-card);
+    padding: var(--space-2) var(--space-4);
+    min-width: 110px;
+  }
+  dt {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  dd {
+    margin: 0;
+    font-size: 48px;
+  }
+</style>

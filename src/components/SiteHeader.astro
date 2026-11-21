@@ -1,0 +1,116 @@
+---
+import type { Recipient } from '../lib/wishlist';
+
+interface Props {
+  recipients: Recipient[];
+  current?: string;
+}
+const { recipients, current } = Astro.props;
+---
+
+<header class="site-header">
+  <a class="brand display" href="/">Wish list</a>
+  <nav aria-label="Lists">
+    <ul>
+      {
+        recipients.map((r) => (
+          <li>
+            <a class="pill" href={`/${r.slug}`} aria-current={r.slug === current ? 'page' : undefined}>
+              {r.name}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode">
+    <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"
+      ><circle cx="12" cy="12" r="4.5"></circle><path
+        d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"
+      ></path></svg
+    >
+    <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"></path></svg>
+  </button>
+</header>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const root = document.documentElement;
+  const sync = () => {
+    const dark = root.dataset.theme === 'dark';
+    button?.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  };
+  sync();
+  button?.addEventListener('click', () => {
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    try {
+      localStorage.setItem('theme', root.dataset.theme);
+    } catch {}
+    sync();
+  });
+</script>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-3);
+  }
+  .brand {
+    font-size: 28px;
+    color: var(--ink);
+    text-decoration: none;
+    margin-right: auto;
+  }
+  nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  ul {
+    display: flex;
+    gap: var(--space-1);
+    list-style: none;
+    margin: 0;
+    padding: 2px;
+  }
+  .pill[aria-current='page'] {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .theme-toggle {
+    width: var(--target);
+    height: var(--target);
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-pill);
+    border: 2px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .theme-toggle svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  :global([data-theme='dark']) .sun,
+  :global([data-theme='light']) .moon {
+    display: none;
+  }
+  @media (min-width: 760px) {
+    nav {
+      order: 0;
+      width: auto;
+    }
+  }
+</style>
