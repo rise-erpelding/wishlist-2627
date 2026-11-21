@@ -1,0 +1,80 @@
+/* Wish list v3 design tokens. Source of truth: the design canvas.
+   Later: convert to W3C DTCG JSON + Style Dictionary and generate this file. */
+
+:root,
+[data-theme="light"] {
+  /* brights (same in both themes) */
+  --orange: #fc5b10;
+  --blue: #0534f2;
+  --mint: #82fade;
+  --yellow: #f7cf08;
+  --on-bright: #14120f; /* text on orange, mint, yellow. White text on orange FAILS (3.2:1). */
+  --on-blue: #ffffff;
+
+  /* neutrals (flip in dark) */
+  --ink: #14120f;
+  --muted: #5f5a52;
+  --line: #e6e0d5;
+  --paper: #fbf8f2;
+  --card: #ffffff;
+  --mint-soft: #d9fdf5;
+  --yellow-soft: #fff4b3;
+  --link: #0534f2;
+  --scrim: rgba(251, 248, 242, 0.82);
+}
+
+[data-theme="dark"] {
+  --ink: #f5f1e8;
+  --muted: #b9b2a5;
+  --line: #3b352c;
+  --paper: #12100d;
+  --card: #1e1b16;
+  --mint-soft: #0f3f36;
+  --yellow-soft: #4a4108;
+  --link: #a3b3ff;
+  --scrim: rgba(18, 16, 13, 0.82);
+}
+
+:root {
+  /* type */
+  --font-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --display-weight: 800;
+  --display-tracking: -0.03em;
+  --display-leading: 0.98;
+
+  /* radius */
+  --radius-input: 14px;
+  --radius-media: 22px;
+  --radius-card: 32px;
+  --radius-block: 40px;
+  --radius-pill: 999px;
+
+  /* spacing (8px rhythm) */
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 44px;
+
+  /* touch target minimum */
+  --target: 44px;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: var(--display-leading);
+  margin: 0;
+}

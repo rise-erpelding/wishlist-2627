@@ -1,0 +1,12 @@
+{
+  "name": "wishlist-2627",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "migrate:data": "node --env-file-if-exists=.env scripts/migrate-data.mjs"
+  }
+}
