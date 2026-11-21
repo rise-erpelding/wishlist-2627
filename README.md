@@ -33,6 +33,7 @@ The management token also signs the Undo cookie, so rotating it just expires any
 | `npm run dev` | Dev server on port 4321 |
 | `npm run build` | Production build for Netlify |
 | `npm run preview` | Serve the production build locally |
+| `npm run add-item -- <link>` | Add an item from a product link (see below) |
 | `npm run migrate:data` | One-off data script, **preview only** (see below) |
 
 ## Managing the list (in Contentful)
@@ -49,7 +50,15 @@ The content model is the same as last year's, plus two fields on Item.
   - `isClaimed`, `claimedBy`: last year's fields. The site keeps `isClaimed` in sync for the list view, but reads `claims`.
   - `isStale`: **how you archive.** The site shows only items that aren't stale. Mark things stale after Christmas and after birthdays.
 
-**To add an item:** create an Item, fill in title, link, list and category, drop a picture into Image, publish. Only published items show.
+**To add an item from the terminal:**
+
+```bash
+npm run add-item -- "https://www.amazon.com/dp/B014Q1XX9S/"
+```
+
+It reads the product page for a title, description, and picture, lets you edit each one (Enter keeps the suggestion), asks whose list and which category, then uploads the picture to Contentful and creates the item, published or as a draft. It warns if the link is already on the list. Some shops (Amazon sometimes, LEGO) block reading the page; then you type the details and can paste a picture link. Add `--dry-run` to see what it would do without saving. With no link, it asks for one.
+
+**To add an item by hand:** create an Item in Contentful, fill in title, link, list and category, drop a picture into Image, publish. Only published items show.
 
 **To see who is giving what:** open the item and look at Claims.
 
@@ -93,6 +102,7 @@ src/
   styles/tokens.css        Design tokens (light and dark)
   styles/global.css        Pills, focus ring, shared bits
   layouts/Base.astro       Fonts, theme before paint, noindex
+scripts/add-item.mjs       Terminal helper: add an item from a product link
 scripts/migrate-data.mjs   One-off data script (already run)
 contentful/migrations/     Model changes, already applied (001–004 were reverted by 005–006)
 PLAN.md                    The original plan and the decisions made along the way
@@ -111,4 +121,3 @@ Tokens are in [`src/styles/tokens.css`](src/styles/tokens.css): Bricolage Grotes
 - Deploy: GitHub repo, Netlify site, env vars, and a separate management token for the live site.
 - Delete last year's Contentful API key (it still exposes old claim emails).
 - 4 images to upload by hand: Gulf Breeze Zoo Gift Card, Men's T-shirts (Patagonia), Stance Socks (×2).
-- Add-item helper script (`scripts/add-item.mjs <url>`), planned for after launch.

@@ -11,7 +11,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "migrate:data": "node --env-file-if-exists=.env scripts/migrate-data.mjs"
+    "migrate:data": "node --env-file-if-exists=.env scripts/migrate-data.mjs",
+    "add-item": "node --env-file-if-exists=.env scripts/add-item.mjs"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.2.14",
