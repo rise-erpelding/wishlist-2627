@@ -3,26 +3,31 @@ import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { getWishlist } from '../lib/wishlist';
-import { brightFor } from '../lib/colors';
+import { colorFor, noteFor, SITE_TITLE } from '../lib/site';
 
 const { recipients, items } = await getWishlist();
 const openCount = (id: string) => items.filter((i) => i.recipientIds.includes(id) && !i.claimed).length;
 Astro.response.headers.set('Cache-Control', 'private, no-cache');
 ---
 
-<Base title="Wish list">
-  <SiteHeader recipients={recipients} />
+<Base title={SITE_TITLE}>
+  <SiteHeader recipients={recipients} showBrand={false} />
   <main>
-    <h1 class="display">Who are you shopping for?</h1>
+    <h1 class="display">{SITE_TITLE}</h1>
+    <p class="lede">Who are you shopping for?</p>
     <ul class="people">
       {
         recipients.map((r, i) => {
-          const c = brightFor(i);
+          const c = colorFor(r.slug, i);
+          const note = noteFor(r.slug);
           const open = openCount(r.id);
           return (
             <li>
               <a href={`/${r.slug}`} style={`--bg: ${c.bg}; --fg: ${c.fg}`}>
-                <span class="name display">{r.name}</span>
+                <span>
+                  <span class="name display">{r.name}</span>
+                  {note && <span class="note">{note}</span>}
+                </span>
                 <span class="meta">{open === 0 ? 'Nothing open right now' : `${open} still open`}</span>
               </a>
             </li>
@@ -42,7 +47,17 @@ Astro.response.headers.set('Cache-Control', 'private, no-cache');
   }
   h1 {
     font-size: clamp(40px, 8vw, 80px);
-    margin-bottom: var(--space-5);
+  }
+  .lede {
+    margin: var(--space-2) 0 var(--space-5);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .note {
+    display: block;
+    margin-top: var(--space-1);
+    font-weight: 600;
   }
   .people {
     display: grid;

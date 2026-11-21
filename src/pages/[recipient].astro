@@ -8,7 +8,7 @@ import ItemCard from '../components/ItemCard.astro';
 import ClaimDialog from '../components/ClaimDialog.astro';
 import UndoToast from '../components/UndoToast.astro';
 import { getWishlist, sortForList } from '../lib/wishlist';
-import { brightFor } from '../lib/colors';
+import { colorFor, noteFor, SITE_NAME } from '../lib/site';
 import { clearUndo, readUndo } from '../lib/undo';
 
 const { recipients, items: all } = await getWishlist();
@@ -41,10 +41,10 @@ if (undo && !justClaimed) clearUndo(Astro.cookies);
 Astro.response.headers.set('Cache-Control', 'private, no-cache');
 ---
 
-<Base title={`${recipient.name}'s wish list`}>
+<Base title={`${recipient.name} · ${SITE_NAME}`}>
   <SiteHeader recipients={recipients} current={recipient.slug} />
   <main>
-    <Hero name={recipient.name} color={brightFor(index)} total={items.length} open={open} />
+    <Hero name={recipient.name} note={noteFor(recipient.slug)} color={colorFor(recipient.slug, index)} total={items.length} open={open} />
     {
       items.length === 0 ? (
         <p class="empty">Nothing on this list yet. Check back soon.</p>

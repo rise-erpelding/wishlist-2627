@@ -1,11 +1,13 @@
 ---
 interface Props {
   name: string;
+  /** Short line under the name, e.g. who a shared list is for. */
+  note?: string;
   color: { bg: string; fg: string };
   total: number;
   open: number;
 }
-const { name, color, total, open } = Astro.props;
+const { name, note, color, total, open } = Astro.props;
 const claimed = total - open;
 ---
 
@@ -13,6 +15,7 @@ const claimed = total - open;
   <div>
     <p class="eyebrow">Wish list for</p>
     <h1 class="display">{name}</h1>
+    {note && <p class="note">{note}</p>}
   </div>
   <dl class="stats">
     <div><dt>Still open</dt><dd class="display" data-stat-open>{open}</dd></div>
@@ -34,6 +37,11 @@ const claimed = total - open;
   }
   .eyebrow {
     margin: 0 0 var(--space-1);
+    font-weight: 600;
+  }
+  .note {
+    margin: var(--space-2) 0 0;
+    font-size: 20px;
     font-weight: 600;
   }
   h1 {

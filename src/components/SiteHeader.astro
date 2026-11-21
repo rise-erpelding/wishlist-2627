@@ -1,15 +1,18 @@
 ---
 import type { Recipient } from '../lib/wishlist';
+import { SITE_NAME } from '../lib/site';
 
 interface Props {
   recipients: Recipient[];
   current?: string;
+  /** The home page has the full title as its heading, so it skips the header name. */
+  showBrand?: boolean;
 }
-const { recipients, current } = Astro.props;
+const { recipients, current, showBrand = true } = Astro.props;
 ---
 
 <header class="site-header">
-  <a class="brand display" href="/">Wish list</a>
+  {showBrand ? <a class="brand display" href="/">{SITE_NAME}</a> : <span class="brand" aria-hidden="true"></span>}
   <nav aria-label="Lists">
     <ul>
       {
