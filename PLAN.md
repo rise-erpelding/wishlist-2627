@@ -1,5 +1,7 @@
 # Family wish list v3: build and migration plan
 
+> **Historical.** This was the starting plan. Several parts changed (the content model most of all); the decisions are recorded below. For how things work now, see [README.md](README.md).
+
 Hand this to Claude Code at the start of the new repo. Target: live by Thu Nov 26 (Thanksgiving). The list is used Nov to Feb, so polish and design-system extraction can follow launch.
 
 ## What it is
