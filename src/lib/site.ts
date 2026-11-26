@@ -11,7 +11,7 @@ const PEOPLE: Record<string, { color: (typeof BRIGHTS)[number]; note?: string }>
   dave: { color: blue },
   david: { color: mint },
   james: { color: orange },
-  rise: { color: orange },
+  rise: { color: yellow },
 };
 
 export const colorFor = (slug: string, index: number) => PEOPLE[slug]?.color ?? brightFor(index);
