@@ -98,15 +98,3 @@ document.querySelector<HTMLFormElement>('[data-undo-form]')?.addEventListener('s
   if (result.ok) location.reload();
   else showToast("Couldn't undo that one. It may have expired.");
 });
-
-// Unclaim someone else's claim on a regular item: confirm first.
-for (const unclaim of document.querySelectorAll<HTMLFormElement>('[data-unclaim]')) {
-  unclaim.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const title = unclaim.closest('[data-item]')?.querySelector('h3')?.firstChild?.textContent?.trim() ?? 'this';
-    if (!confirm(`Unclaim "${title}"? Only do this if nobody is giving it anymore.`)) return;
-    const result = await post('/api/unclaim', new FormData(unclaim));
-    if (result.ok) location.reload();
-    else alert(MESSAGES[result.error ?? 'server'] ?? MESSAGES.server);
-  });
-}

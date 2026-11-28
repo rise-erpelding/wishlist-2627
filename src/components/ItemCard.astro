@@ -50,16 +50,7 @@ const host = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : null;
     <div class="actions" data-actions>
       {
         item.claimed ? (
-          <>
-            <p class="status">Someone is giving this</p>
-            <form method="post" action="/api/unclaim" data-unclaim>
-              <input type="hidden" name="itemId" value={item.id} />
-              <input type="hidden" name="returnTo" value={slug} />
-              <button type="submit" class="text-button">
-                Unclaim<span class="visually-hidden"> {item.title}</span>
-              </button>
-            </form>
-          </>
+          <p class="status">Someone is giving this</p>
         ) : (
           // A link so it still works without JavaScript; the script opens the dialog instead.
           <a class="pill primary" href={`/${slug}?claim=${item.id}#claim-dialog`} data-claim={item.id} data-title={item.title}>
@@ -197,17 +188,6 @@ const host = item.url ? new URL(item.url).hostname.replace(/^www\./, '') : null;
   }
   .status[hidden] {
     display: none;
-  }
-  .text-button {
-    min-height: var(--target);
-    padding: 0 var(--space-1);
-    border: 0;
-    background: none;
-    color: var(--link);
-    font: 600 15px var(--font-body);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
   }
   .status {
     margin: 0;

@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
-import { clearClaims, ClaimError, isItemId, removeClaim, safeReturn } from '../../lib/claims';
+import { ClaimError, removeClaim, safeReturn } from '../../lib/claims';
 import { clearUndo, readUndo } from '../../lib/undo';
 
-// mode=undo  → remove the one claim this browser just made (signed cookie).
-// otherwise  → itemId: unclaim a regular (non gift card) item.
+// Undo only: remove the one claim this browser just made (signed 10-minute cookie).
+// There is deliberately no way to clear someone else's claim from the site.
+// To fix a claim later, the owner edits `claims` in Contentful.
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const form = await request.formData();
   const json = request.headers.get('accept')?.includes('application/json');
@@ -14,17 +15,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     json ? Response.json({ error }, { status }) : redirect(`${back}?error=${error}`, 303);
 
   try {
-    if (form.get('mode') === 'undo') {
-      const token = readUndo(cookies);
-      if (!token) return fail('undo-expired', 400);
-      await removeClaim(token.itemId, token.claimId);
-      clearUndo(cookies);
-      return done(token.itemId);
-    }
-    const itemId = form.get('itemId');
-    if (!isItemId(itemId)) return fail('not-found', 400);
-    await clearClaims(itemId);
-    return done(itemId);
+    const token = readUndo(cookies);
+    if (!token) return fail('undo-expired', 400);
+    await removeClaim(token.itemId, token.claimId);
+    clearUndo(cookies);
+    return done(token.itemId);
   } catch (err) {
     const code = err instanceof ClaimError ? err.code : 'server';
     if (!(err instanceof ClaimError)) console.error(err);

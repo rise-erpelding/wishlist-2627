@@ -106,14 +106,6 @@ export function removeClaim(itemId: string, claimId: string) {
   return writeClaims(itemId, ({ claims }) => claims.filter((c) => c.id !== claimId));
 }
 
-/** Unclaim a regular item. Gift cards can only be undone by the person who claimed. */
-export function clearClaims(itemId: string) {
-  return writeClaims(itemId, ({ multi }) => {
-    if (multi) throw new ClaimError('gone');
-    return [];
-  });
-}
-
 // ---------- input checks ----------
 
 export const isItemId = (s: unknown): s is string => typeof s === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(s);

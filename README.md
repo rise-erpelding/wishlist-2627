@@ -1,6 +1,6 @@
 # Erp Wish List 2026–2027
 
-The family wish list. Each person has a page of things they'd like. Family members claim an item ("I'll give this") so nobody doubles up. No accounts: anyone with the link can claim, undo, and unclaim. Giver names and emails are optional, and only the list owner sees them, in Contentful.
+The family wish list. Each person has a page of things they'd like. Family members claim an item ("I'll give this") so nobody doubles up. No accounts: anyone with the link can claim, and the person who claimed can undo it for a few minutes. Giver names and emails are optional, and only the list owner sees them, in Contentful.
 
 Version 3. v1 was Next.js and v2 was Lit ([wishlist-2526](../wishlist-2526), reference only). This one is [Astro](https://astro.build), rendered on the server, hosted on Netlify, with content in Contentful.
 
@@ -69,7 +69,7 @@ Per-person colors and notes (like "Gifts for David and James to share.") live in
 1. "I'll give this" opens a dialog: name and email, both optional, plus a hidden honeypot field for bots.
 2. `POST /api/claim` loads the item with the Management API, checks it's published, not stale, and still claimable, appends to `claims`, saves with the version header, and publishes. If someone else saved at the same moment, it reloads and tries once more, so both claims are counted and a regular item can't be claimed twice.
 3. The response sets a signed, HttpOnly, 10-minute cookie naming that one claim. The page shows an Undo toast. Undo (`POST /api/unclaim`, `mode=undo`) removes exactly that claim. The next list page view without the `?claimed=` marker drops the cookie, so Undo is offered once.
-4. Regular items also have an **Unclaim** link that clears all claims after a confirm. Gift cards can only be undone by the person who claimed.
+4. There is no Unclaim on the site, so nobody can clear someone else's claim. If a giver changes their mind after the Undo window, the owner fixes it in Contentful: edit the item's `claims` (`[]` clears it) and set `isClaimed` to match.
 
 Everything works without JavaScript as plain form posts and redirects. With JavaScript, the card updates in place. Cross-site posts are rejected by Astro's origin check.
 
@@ -90,7 +90,7 @@ src/
     index.astro            Home: a card per person
     [recipient].astro      A person's list, plus claim dialog and Undo toast
     api/claim.ts           POST: claim an item
-    api/unclaim.ts         POST: undo a claim, or unclaim a regular item
+    api/unclaim.ts         POST: undo the claim this browser just made
   components/              SiteHeader, Hero, Filters, ItemCard, ClaimDialog, UndoToast, SiteFooter
   lib/
     wishlist.ts            Reads Contentful (Delivery API), returns the public shape
